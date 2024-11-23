@@ -73,3 +73,33 @@ but if we copy the definition of the function also, we will get an error as the 
 instead of this a .h (header) file is created where we have the function definitions,
 a file with the same name is created as an implementation of the function in .h file.  
 and then we can include the header files in the required cpp files.
+
+#### Makefile
+
+What Happens When make is Run?
+Make Reads the Default Target:
+
+The first target, all, is invoked by default.
+It declares that $(LIB_DIR)/trig.lib, $(LIB_DIR)/compound_interest.dll, and calculator must be built.
+Dependency Resolution:
+
+Make checks if these files exist and if their dependencies are up-to-date.
+If a dependency is missing or outdated, it invokes the corresponding rule to generate it.
+Build Workflow:
+
+Step 1: Build trig.lib.
+
+Rule:
+
+```
+$(LIB_DIR)/trig.lib: $(BUILD_DIR)/trig_operations.o
+    lib /OUT:$@ $^
+```
+
+```
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
+    $(CXX) $(CXXFLAGS) -I$(INCLUDE_DIR) -c -o $@ $<
+```
+
+trig_operations.cpp is compiled into trig_operations.o.
+The static library trig.lib is then created using lib.

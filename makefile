@@ -23,6 +23,7 @@ all: $(LIB_DIR)/trig.lib $(LIB_DIR)/compound_interest.dll calculator
 calculator: $(OBJ_FILES)
 	$(CXX) $(CXXFLAGS) -o $@ $^ -L$(LIB_DIR)
 
+# This rule means: "For any .cpp file in src/, compile it into an .o file in build/."
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
 	$(CXX) $(CXXFLAGS) -I$(INCLUDE_DIR) -I$(INCLUDE_ASIO_DIR) -c -o $@ $<
 
