@@ -9,6 +9,7 @@ SRC_DIR = src
 BUILD_DIR = build
 INCLUDE_DIR = include
 LIB_DIR = lib
+INCLUDE_ASIO_DIR = asio/include
 
 # Source files
 SRC_FILES = $(wildcard $(SRC_DIR)/*.cpp)
@@ -23,7 +24,7 @@ calculator: $(OBJ_FILES)
 	$(CXX) $(CXXFLAGS) -o $@ $^ -L$(LIB_DIR)
 
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
-	$(CXX) $(CXXFLAGS) -I$(INCLUDE_DIR) -c -o $@ $<
+	$(CXX) $(CXXFLAGS) -I$(INCLUDE_DIR) -I$(INCLUDE_ASIO_DIR) -c -o $@ $<
 
 # Rule to create the compound interest DLL
 $(LIB_DIR)/compound_interest.dll: $(BUILD_DIR)/compound_interest.o

@@ -1,68 +1,90 @@
+#include "crow_all.h"
 #include <iostream>
 #include "operations.h"
 #include "trig_operations.h"
 #include "compound_interest.h"
 
+
 int main()
 {
-    double num1, num2;
-    char operation;
+    crow::SimpleApp app;
 
-    double principal, rate;
-    int times, years;
+    CROW_ROUTE(app, "/basic_math").methods(crow::HTTPMethod::GET)([](const crow::request &req)
+                                                                  {
+        auto x = crow::json::load(req.body);
+        if (!x) {
+            return crow::response(400, "Invalid JSON");
+        }
 
-    std::cout << "Enter the principal amount: ";
-    std::cin >> principal;
-    std::cout << "Enter the annual interest rate (as a decimal): ";
-    std::cin >> rate;
-    std::cout << "Enter the number of times interest is compounded per year: ";
-    std::cin >> times;
-    std::cout << "Enter the number of years: ";
-    std::cin >> years;
-
-    double amount = calculateCompoundInterest(principal, rate, times, years);
-    std::cout << "The compound interest amount is: " << amount << std::endl;
-
-    /*    double angle;
-        std::cout << "Enter an angle in radians: ";
-        std::cin >> angle;
-
-        std::cout << "sin(" << angle << ") = " << sincalc(angle) << std::endl;
-        std::cout << "cos(" << angle << ") = " << coscalc(angle) << std::endl;
-        std::cout << "tan(" << angle << ") = " << tancalc(angle) << std::endl;
-    */
-    /*
-        std::cout << "Enter first number: ";
-        std::cin >> num1;
-        std::cout << "Enter an operation (+, -, *, /): ";
-        std::cin >> operation;
-        std::cout << "Enter second number: ";
-        std::cin >> num2;
+        std::string operation = x["operation"].s();
+        double result;
 
         try {
-            double result;
-            switch (operation) {
-                case '+':
-                    result = add(num1, num2);
-                    break;
-                case '-':
-                    result = subtract(num1, num2);
-                    break;
-                case '*':
-                    result = multiply(num1, num2);
-                    break;
-                case '/':
-                    result = divide(num1, num2);
-                    break;
-                default:
-                    std::cerr << "Invalid operation" << std::endl;
-                    return 1;
+            if (operation == "add") {
+                result = add(x["a"].d(), x["b"].d());
+            } else if (operation == "subtract") {
+                result = subtract(x["a"].d(), x["b"].d());
+            } else if (operation == "multiply") {
+                result = multiply(x["a"].d(), x["b"].d());
+            } else if (operation == "divide") {
+                result = divide(x["a"].d(), x["b"].d());
+            } else {
+                return crow::response(400, "Invalid operation");
             }
-            std::cout << "Result: " << result << std::endl;
         } catch (const std::exception& e) {
-            std::cerr << "Error: " << e.what() << std::endl;
+            return crow::response(400, e.what());
         }
-    */
 
-    return 0;
+        crow::json::wvalue response;
+        response["result"] = result;
+        return crow::response(response); });
+
+    CROW_ROUTE(app, "/trig_functions").methods(crow::HTTPMethod::GET)([](const crow::request &req)
+                                                                      {
+        auto x = crow::json::load(req.body);
+        if (!x) {
+            return crow::response(400, "Invalid JSON");
+        }
+
+        std::string operation = x["operation"].s();
+        double result;
+
+        try {
+            if (operation == "sin") {
+                result = sincalc(x["angle"].d());
+            } else if (operation == "cos") {
+                result = coscalc(x["angle"].d());
+            } else if (operation == "tan") {
+                result = tancalc(x["angle"].d());
+            } else {
+                return crow::response(400, "Invalid operation");
+            }
+        } catch (const std::exception& e) {
+            return crow::response(400, e.what());
+        }
+
+        crow::json::wvalue response;
+        response["result"] = result;
+        return crow::response(response); });
+
+    CROW_ROUTE(app, "/compound_interest").methods(crow::HTTPMethod::GET)([](const crow::request &req)
+                                                                         {
+        auto x = crow::json::load(req.body);
+        if (!x) {
+            return crow::response(400, "Invalid JSON");
+        }
+
+        double result;
+
+        try {
+            result = calculateCompoundInterest(x["principal"].d(), x["rate"].d(), x["times"].i(), x["years"].i());
+        } catch (const std::exception& e) {
+            return crow::response(400, e.what());
+        }
+
+        crow::json::wvalue response;
+        response["result"] = result;
+        return crow::response(response); });
+
+    app.port(18080).multithreaded().run();
 }
